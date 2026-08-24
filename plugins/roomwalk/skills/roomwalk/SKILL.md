@@ -27,11 +27,26 @@ in the workshop.
 
 ## What you need before starting
 
-1. **The Higgsfield MCP connector.** Add it through the connector UI at claude.ai:
-   `https://mcp.higgsfield.ai/mcp`. Do **not** use `claude mcp login` from the CLI —
-   Higgsfield's metadata declares `issuer: https://mcp.higgsfield.ai` but the redirect
-   carries `iss=https://clerk.higgsfield.ai`, and Claude Code rejects that per RFC 9207.
-   There is no env var to disable the check.
+1. **The Higgsfield MCP connector.** If the `generate_video` / `generate_image` tools
+   are not in this session, connect it before anything else:
+
+   ```bash
+   python3 "${CLAUDE_PLUGIN_ROOT}/skills/roomwalk/tools/connect_higgsfield.py"
+   ```
+
+   Run it in the background, read its output, and hand the user the sign-in link it
+   prints on its own line. It registers a client, waits for the browser callback,
+   writes the token into the user-scope MCP config, and asks for a restart. One click
+   from the user, nothing else.
+
+   Do **not** reach for `claude mcp login higgsfield` — it always fails. Higgsfield's
+   metadata declares `issuer: https://mcp.higgsfield.ai` while the redirect carries
+   `iss=https://clerk.higgsfield.ai`, and Claude Code rejects that per RFC 9207, with no
+   flag to disable the check. Their advertised device-code server returns 404 on every
+   endpoint, so that route is dead too. The script exists because of both.
+
+   When the stored token expires, `--refresh` renews it without a new sign-in;
+   `--status` reports what is currently configured.
 2. **Swift.** `swiftc` ships with Xcode Command Line Tools. The frame tools are
    AVFoundation — ffmpeg is not required and is usually absent on a designer's Mac.
 3. **The client's real photographs.** Ask for them or scrape their existing site.
@@ -39,8 +54,8 @@ in the workshop.
 4. **Credits.** A five-stop draft costs roughly 60–80 credits at 480p. Always
    preflight with `get_cost: true` before a final pass.
 
-If the connector is missing, say so and stop. Do not fall back to the REST API
-unless the user has keys and asks for it.
+If the connector cannot be established, say so and stop. Do not fall back to the REST
+API unless the user has keys and asks for it.
 
 ---
 

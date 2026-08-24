@@ -13,12 +13,26 @@ page honest: nobody is shown a rendered object and told it was built in the work
 
 ## Install
 
+Paste this into Claude Code and press enter. Nothing else to set up.
+
+> Install the roomwalk plugin: run `claude plugin marketplace add tezeralpman/roomwalk`
+> then `claude plugin install roomwalk@roomwalk`. After that connect Higgsfield by
+> running the plugin's `connect_higgsfield.py` in the background and giving me the
+> sign-in link it prints.
+
+It installs the plugin, starts the Higgsfield sign-in, and hands you a link. Click it,
+log into your Higgsfield account, and the token writes itself into your MCP config.
+Restart Claude Code once and everything is live.
+
+Prefer doing it by hand? Two commands and one script:
+
 ```
 /plugin marketplace add tezeralpman/roomwalk
 /plugin install roomwalk@roomwalk
+/roomwalk:connect
 ```
 
-Restart Claude Code. Then just say what you want:
+Then just say what you want:
 
 > *Сделай скролл-проход по комнате для сайта столярной мастерской. Фотографии работ — на woodenwolf.ru*
 
@@ -40,11 +54,22 @@ renders the transitions, slices the frames, measures its own seams, and wires th
 
 ### The connector, specifically
 
-`claude mcp login higgsfield` fails with *"Issuer mismatch in authorization response
-(RFC 9207)"*. Higgsfield's metadata declares `issuer: https://mcp.higgsfield.ai` but the
-redirect carries `iss=https://clerk.higgsfield.ai` from their upstream Clerk. Claude Code
-rejects it correctly, and there is no environment variable to disable the check. Add the
-connector through the claude.ai UI instead — that path authenticates fine.
+`claude mcp login higgsfield` always fails with *"Issuer mismatch in authorization
+response (RFC 9207)"*. Higgsfield's metadata declares `issuer: https://mcp.higgsfield.ai`
+while the redirect carries `iss=https://clerk.higgsfield.ai` from their upstream Clerk.
+Claude Code rejects that correctly and there is no flag to disable the check. Their
+advertised device-code server, `fnf-device-auth.higgsfield.ai`, returns 404 on every
+endpoint, so that route is dead as well.
+
+`/roomwalk:connect` works around it. It runs the same authorization-code + PKCE flow with
+the same `state` check and skips only the `iss` comparison — a mix-up protection that
+matters when a client talks to several authorization servers, where here there is exactly
+one, taken from Higgsfield's own metadata. Then it writes the token into the user-scope
+MCP config as a static bearer header.
+
+Because the header is static, the token eventually expires. `--refresh` renews it without
+a new sign-in; `--status` reports what is configured. Adding the connector through the
+claude.ai UI also works if you would rather click than run a script.
 
 ---
 
@@ -58,7 +83,11 @@ skills/roomwalk/
   tools/measure_flicker.swift per-frame brightness jitter and loop-seam distance
   tools/blend_seam.swift      soften a mild join without spending credits
   tools/preview_hero.swift    composite a frame with gradients + caption to PNG
+  tools/connect_higgsfield.py Higgsfield sign-in that works around the RFC 9207 bug
   web/scroll_frames.js        canvas scroll engine with a pacing timeline
+commands/
+  connect.md                  /roomwalk:connect
+  walk.md                     /roomwalk:walk
 ```
 
 ---
