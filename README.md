@@ -13,33 +13,45 @@ page honest: nobody is shown a rendered object and told it was built in the work
 
 ## Install
 
-Paste this into Claude Code and press enter. Nothing else to set up.
+Paste this into Claude Code. That is the whole setup.
 
-> Install the roomwalk plugin: run `claude plugin marketplace add tezeralpman/roomwalk`
-> then `claude plugin install roomwalk@roomwalk`. After that connect Higgsfield by
-> running the plugin's `connect_higgsfield.py` in the background and giving me the
-> sign-in link it prints.
+> Поставь плагин roomwalk: `claude plugin marketplace add tezeralpman/roomwalk`, потом
+> `claude plugin install roomwalk@roomwalk`. Затем подключи Higgsfield — запусти в фоне
+> `connect_higgsfield.py` из плагина и дай мне ссылку для входа. После этого начни
+> roomwalk и спроси у меня ссылку на сайт.
 
-It installs the plugin, starts the Higgsfield sign-in, and hands you a link. Click it,
-log into your Higgsfield account, and the token writes itself into your MCP config.
-Restart Claude Code once and everything is live.
+It installs itself, hands you a Higgsfield sign-in link, and then asks one question:
 
-Prefer doing it by hand? Two commands and one script:
+> *Пришлите ссылку на сайт мастерской.*
+
+Send the link. It reads the site — categories, how many photographs sit behind each,
+prices, the line they repeat about themselves — and comes back with a plan and a price:
+
+> Посмотрел сайт. Мастерская делает столешницы (155 фото), подоконники (118), столы (55),
+> шкафы (32) — всего 618 работ. Есть калькулятор с настоящими ценами: от 14 300 ₽/м².
+> С 2003 года, рейтинг 5,0.
+>
+> Предлагаю проход по одной комнате: столешница → подоконник → откос → стол → шкаф,
+> в конце шкаф открывается. На каждой остановке всплывают ваши настоящие фотографии.
+>
+> Черновик 480p — около 70 кредитов, минут двадцать. Делаем так?
+
+You say yes. It builds.
+
+If the site can't be read, it says so and asks for two things instead: what the shop
+makes, and a few photographs of finished work. It will not guess the business from a
+domain name, and it will not build without photographs.
+
+Restart Claude Code once after the sign-in so the Higgsfield tools load.
+
+Prefer it by hand:
 
 ```
 /plugin marketplace add tezeralpman/roomwalk
 /plugin install roomwalk@roomwalk
 /roomwalk:connect
+/roomwalk:start
 ```
-
-Then just say what you want:
-
-> *Сделай скролл-проход по комнате для сайта столярной мастерской. Фотографии работ — на woodenwolf.ru*
-
-> *Build a scroll walkthrough hero for my kitchen studio. Stops: worktop, sink run, island, cabinet fronts.*
-
-The skill handles the rest — plans the stops, generates the room, cuts the anchors,
-renders the transitions, slices the frames, measures its own seams, and wires the scroll.
 
 ---
 
@@ -86,8 +98,9 @@ skills/roomwalk/
   tools/connect_higgsfield.py Higgsfield sign-in that works around the RFC 9207 bug
   web/scroll_frames.js        canvas scroll engine with a pacing timeline
 commands/
-  connect.md                  /roomwalk:connect
-  walk.md                     /roomwalk:walk
+  connect.md                  /roomwalk:connect — Higgsfield sign-in
+  start.md                    /roomwalk:start — ask for the link, read the site, propose
+  walk.md                     /roomwalk:walk — go straight to building
 ```
 
 ---

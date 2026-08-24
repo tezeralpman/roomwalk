@@ -49,8 +49,8 @@ in the workshop.
    `--status` reports what is currently configured.
 2. **Swift.** `swiftc` ships with Xcode Command Line Tools. The frame tools are
    AVFoundation — ffmpeg is not required and is usually absent on a designer's Mac.
-3. **The client's real photographs.** Ask for them or scrape their existing site.
-   Without them, this skill has no proof layer and should not be run.
+3. **The client's real photographs.** Pulled from their own site in step 2. Without
+   them this skill has no proof layer and should not be run.
 4. **Credits.** A five-stop draft costs roughly 60–80 credits at 480p. Always
    preflight with `get_cost: true` before a final pass.
 
@@ -61,21 +61,70 @@ API unless the user has keys and asks for it.
 
 ## The pipeline
 
-### 1 · Interview, then pick the stops
+### 1 · Ask for the link, and ask for nothing else
 
-Ask two questions and no more:
+Open with one line:
 
-> *What does the shop make, in the order you'd want a visitor to see it?*
-> *Do you have photographs of finished work, or a site I can pull them from?*
+> *Пришлите ссылку на сайт мастерской — я посмотрю, что вы делаете, и предложу план.*
+> *(Send me the link to the shop's site — I'll read it and propose a plan.)*
 
-Then pick **four to six stops**. Fewer than four and the walk is not a walk; more
-than six and you will cross into a second room, which is where continuity dies
-(see § One room).
+Do not ask about stops, tone, colours, or anything else yet. Everything you need is
+usually on their existing site, and asking a person to describe what their own site
+already says is the fastest way to lose them.
 
-Map each stop to a category in the client's own catalogue. A stop with no real
-photographs behind it is decoration — cut it.
+### 2 · Read the site
 
-### 2 · Establish the room
+Fetch the page, then the pages it links to. What you are looking for:
+
+- **Categories of work**, and how many photographs sit behind each. A gallery with 155
+  photos and one with 3 are not equal candidates for a stop.
+- **The photographs themselves.** Note the pattern. Many shop sites serve a thumbnail
+  (`k21s.jpg`) beside a full-size file at the same path without the suffix (`k21.jpg`) —
+  try dropping the suffix before settling for thumbnails.
+- **Prices**, if any. An inline price table or a calculator's JavaScript is gold: it lets
+  the page show a real "from N" instead of "contact us".
+- **The differentiator.** Usually one sentence they repeat: *"we don't sell panels, we
+  make things out of boards."* That line is the hero, not something you invent.
+- **Contacts, founding year, ratings.** Real numbers for the proof strip — never invent
+  one, and see gate: an invented metric is worse than no metric.
+
+Then download 8–10 photographs per category into `assets/catalog/<slug>/` and write a
+`catalog.json` recording each category's title, its files, and its **true total** on the
+source site. The counter matters: "все 155 →" is a different promise from "все 8 →".
+
+**If the site cannot be read** — JavaScript-only shell, auth wall, dead domain, a
+one-pager with no gallery — say so plainly and ask for exactly two things:
+
+> *Не смог прочитать сайт — там нечего разобрать. Расскажите в двух словах, что делает
+> мастерская, и пришлите несколько фотографий готовых работ.*
+
+Do not guess the business from its domain name. Do not proceed without photographs: a
+walk with no proof layer is a rendered fantasy with a phone number on it.
+
+### 3 · Propose the plan, then wait
+
+Come back with a short, concrete proposal — what you found, what you would build, what it
+costs. Not a questionnaire. Something like:
+
+> Посмотрел сайт. Мастерская делает столешницы (155 фото), подоконники (118), столы (55),
+> шкафы (32) и ещё пять направлений — всего 618 работ. Есть калькулятор с настоящими
+> ценами: от 14 300 ₽/м². Работает с 2003 года, рейтинг 5,0 в Яндексе.
+>
+> Предлагаю проход по одной комнате с пятью остановками: столешница → подоконник →
+> оформление окна → стол → шкаф, и в конце шкаф открывается. На каждой остановке
+> всплывают ваши настоящие фотографии этой категории и ведут в каталог.
+>
+> Черновик в 480p — около 70 кредитов, минут двадцать. Финал в 1080p — ещё 290.
+>
+> Делаем так?
+
+Three things this must contain: **the stops mapped to their real categories with counts**,
+**the cost**, and **one question at the end**. Wait for a yes before spending anything.
+
+If they want different stops, take theirs — but hold the one-room rule and the four-to-six
+range. More than six stops means a second room, and § One room explains why that tears.
+
+### 4 · Establish the room
 
 Generate one wide establishing shot with `generate_image` (`nano_banana_pro`, 2k,
 16:9) that **names the layout explicitly by wall**:
@@ -89,7 +138,7 @@ Look at the result. If the layout does not match what you asked for, regenerate 
 everything downstream inherits this geometry. Two credits is cheap; a broken walk
 is not.
 
-### 3 · Cut the anchors
+### 5 · Cut the anchors
 
 For each stop, generate a still **from the establishing shot as `image_references`**.
 These are the frames the camera must arrive at. Use `generate_image_batch` — they are
@@ -99,7 +148,7 @@ Anchors are the whole trick. Without them the model invents the arrival, and you
 the two classic failures: **an object grows into frame that was not there before**,
 and **the camera reverses** to find its subject.
 
-### 4 · Generate the transitions
+### 6 · Generate the transitions
 
 **The rule that matters: lock both ends.**
 
@@ -133,7 +182,7 @@ Chained ones are sequential by nature.
 > job. Resubmit with `declined_preset_id` set to the id it returned. It also
 > rate-limits bursts — wait and retry rather than dropping the segment.
 
-### 5 · One room
+### 7 · One room
 
 **Do not cross into a second room.** This is the single biggest cause of torn walks.
 
@@ -145,7 +194,7 @@ into a second room tore at 6.3×, 11.4× and 8.4×, because the model could not 
 If the brief needs more categories than one room holds, put the extras in the catalogue
 below the hero. A shop's real photographs of a chest of drawers beat a generated one.
 
-### 6 · Slice to frames
+### 8 · Slice to frames
 
 ```bash
 swiftc -O tools/extract_frames.swift -o extract_frames
@@ -164,7 +213,7 @@ Two traps it already handles, both of which cost a rebuild to find:
 
 Concatenate the segments into one numbered run and write a combined manifest.
 
-### 7 · Measure the seams
+### 9 · Measure the seams
 
 ```bash
 swiftc -O tools/measure_seams.swift -o measure_seams
@@ -189,7 +238,7 @@ last frame sits from the first (the loop seam). Jitter invisible at 30 fps reads
 flicker when scrubbed slowly. If the material has strong texture and raking light, run
 Higgsfield's `video_deflicker` **before** slicing.
 
-### 8 · Wire the scroll
+### 10 · Wire the scroll
 
 Copy `web/scroll_frames.js`. It draws to `<canvas>` — never swap `<img src>`, which
 re-decodes and flashes.
@@ -224,7 +273,7 @@ numbers, never a regeneration.
 Put the stops at exact segment boundaries — `k / segmentCount` — so a caption never
 lands mid-move.
 
-### 9 · Surface the real work
+### 11 · Surface the real work
 
 At each stop, fade in three of the shop's real photographs from that category, and
 make them **clickable** — they should open that section of the catalogue. Decorative

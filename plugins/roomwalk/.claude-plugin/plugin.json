@@ -1,12 +1,18 @@
 {
   "name": "roomwalk",
-  "description": "Build a scroll-driven walk through a generated interior for a maker's website. Ships the Higgsfield generation recipe (anchored transitions, chained tails, one-room rule), AVFoundation frame tools that need no ffmpeg, a seam measurer, and the canvas scroll engine.",
-  "version": "0.1.0",
+  "description": "Send it a link to the shop's website and it does the rest: reads what they make and how many photographs sit behind each category, proposes a scroll-driven walk through one generated room with their real work surfacing at each stop, then builds it. Ships the Higgsfield sign-in that Claude Code's own login cannot complete, the generation recipe, AVFoundation frame tools that need no ffmpeg, a seam measurer, and the scroll engine.",
+  "version": "0.2.0",
   "author": {
     "name": "Aironzak"
   },
   "homepage": "https://github.com/tezeralpman/roomwalk",
   "repository": "https://github.com/tezeralpman/roomwalk",
   "license": "MIT",
-  "keywords": ["scrollytelling", "higgsfield", "scroll-video", "landing-page", "avfoundation"]
+  "keywords": [
+    "scrollytelling",
+    "higgsfield",
+    "scroll-video",
+    "landing-page",
+    "avfoundation"
+  ]
 }
