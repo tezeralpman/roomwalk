@@ -1,0 +1,14 @@
+{
+  "name": "roomwalk",
+  "description": "Scroll-driven interior walkthroughs for makers' websites — generated stage, real photographs as proof.",
+  "owner": {
+    "name": "Aironzak"
+  },
+  "plugins": [
+    {
+      "name": "roomwalk",
+      "source": "./plugins/roomwalk",
+      "description": "roomwalk: a scroll-driven walk through a generated interior for a maker's website. The camera walks past what the business actually makes, stops at each one, and the shop's real photographs surface beside it. Generates footage through the Higgsfield MCP, slices frames with AVFoundation (no ffmpeg), measures its own seams, and wires the scroll."
+    }
+  ]
+}
