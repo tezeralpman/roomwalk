@@ -1,7 +1,7 @@
 {
   "name": "roomwalk",
-  "description": "Send it a link to the shop's website and it does the rest: reads what they make and how many photographs sit behind each category, proposes a scroll-driven walk through one generated room with their real work surfacing at each stop, then builds it. Ships the Higgsfield sign-in that Claude Code's own login cannot complete, the generation recipe, AVFoundation frame tools that need no ffmpeg, a seam measurer, and the scroll engine.",
-  "version": "0.2.0",
+  "description": "Send it a link to any business's website and it builds a scroll-driven walk through a generated space — workshop, boutique, clinic, kitchen, studio, showroom. Reads the site to find the categories, counts, prices and claim, proposes a plan and a cost, then generates through Higgsfield, slices frames with AVFoundation (no ffmpeg), measures its own seams and wires the scroll. Generates the environment, never the outcome.",
+  "version": "0.3.0",
   "author": {
     "name": "Aironzak"
   },
@@ -13,6 +13,7 @@
     "higgsfield",
     "scroll-video",
     "landing-page",
-    "avfoundation"
+    "avfoundation",
+    "local-business"
   ]
 }

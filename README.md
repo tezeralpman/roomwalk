@@ -1,13 +1,15 @@
 # roomwalk
 
-**A scroll hero where the camera walks through one room and stops at each thing the business makes.**
+**Send it your website. It reads the site, proposes a scroll-driven walk through a generated
+space, and builds it.**
 
-Built for makers — joinery, furniture, kitchens, stone, glass — where the product is
-physical and the shop already owns photographs of real work.
+The camera moves through one room and stops at each thing you sell. The generated space is
+the **stage**; your own photographs are the **proof**, and they surface at the stop that
+matches their category. Nobody is shown a rendered thing and told it is yours.
 
-The generated interior is the **stage**. The shop's real photographs are the **proof**,
-and they surface at the stop that shows their category. That split is what keeps the
-page honest: nobody is shown a rendered object and told it was built in the workshop.
+Works for any business physical enough to walk past — a joinery, a perfumery, a clinic, a
+restaurant, a detailing bay, a flower studio, a gym, an atelier. The space changes; the
+mechanic does not. Purely digital businesses are the wrong fit and the skill says so.
 
 ---
 
@@ -61,7 +63,7 @@ Prefer it by hand:
 | --- | --- |
 | **Higgsfield MCP** | Add `https://mcp.higgsfield.ai/mcp` through the connector UI at claude.ai. **Not** via `claude mcp login` — see below. |
 | **Swift** | `swiftc`, from Xcode Command Line Tools. The frame tools are AVFoundation; ffmpeg is not needed. |
-| **Real photographs** | The client's own finished work. Without them there is no proof layer. |
+| **Real photographs** | Your own — pulled off your site automatically. Without them there is no proof layer. |
 | **Credits** | A five-stop draft runs about 60–80 credits at 480p. |
 
 ### The connector, specifically
@@ -102,6 +104,21 @@ commands/
   start.md                    /roomwalk:start — ask for the link, read the site, propose
   walk.md                     /roomwalk:walk — go straight to building
 ```
+
+---
+
+## What space you get
+
+| Business | The space | Typical stops |
+| --- | --- | --- |
+| Joinery, furniture | one room of a house | worktop · sill · table · cabinet fronts |
+| Perfumery | a boutique | shelf of flacons · tester bar · gift packaging · counter |
+| Cosmetology, dental | reception and one treatment room | reception · chair · product shelf · quiet corner |
+| Restaurant, bakery | dining room to pass | window seat · counter display · open pass · bar |
+| Car detailing | one workshop bay | lift · polishing bay · wheel wall · finished car |
+| Flowers, ceramics | a studio | workbench · shelving · packing table · window |
+| Fitness, spa | one hall plus a corner | equipment row · weights · treatment room · lockers |
+| Clothing, tailoring | atelier or shop floor | fabric rolls · mannequin · fitting mirror · rail |
 
 ---
 
@@ -146,13 +163,25 @@ H.264 is roughly 4 MB, six times lighter, at the cost of seek precision in Safar
 
 ---
 
-## Honesty
+## Honesty, and where it becomes a hard stop
 
-The interior is generated; the furniture in it was never built by anyone. Keep the shop's
-real photographs as the proof layer, keep them at the stop that matches their category,
-and put a plain line in the footer saying the interior is styling rather than portfolio.
-A visitor who orders "the table from your homepage" and learns it does not exist is a
-worse outcome than a slightly less cinematic hero.
+The space is generated. Your photographs are the proof layer, and the footer says plainly
+that the interior is styling rather than a photograph of your premises.
+
+**It generates the environment, never the outcome.** A room, a shelf, a counter, a chair,
+light on a surface — yes. A result you are selling — no:
+
+- **No faces, no bodies, no skin.** For anything cosmetic, medical, dental, fitness or
+  aesthetic this is absolute. A generated "after" is a fabricated clinical claim, and
+  advertising one is illegal in most jurisdictions regardless of a disclaimer.
+- No before-and-after of any kind.
+- No generated food presented as your menu.
+- No generated products carrying your branding.
+- No certificates, diplomas, licences or awards in frame.
+
+For regulated businesses the hero shows the premises only, and every claim and result on
+the page comes from your own material. A visitor who books a procedure because of a
+rendered face is a worse outcome than no hero at all.
 
 ---
 
