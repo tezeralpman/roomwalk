@@ -1,7 +1,7 @@
 {
   "name": "roomwalk",
   "description": "Send it a link to any business's website and it builds a scroll-driven walk through a generated space — workshop, boutique, clinic, kitchen, studio, showroom. Reads the site to find the categories, counts, prices and claim, proposes a plan and a cost, then generates through Higgsfield, slices frames with AVFoundation (no ffmpeg), measures its own seams and wires the scroll. Generates the environment, never the outcome.",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": {
     "name": "Aironzak"
   },

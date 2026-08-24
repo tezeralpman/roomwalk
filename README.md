@@ -97,6 +97,8 @@ skills/roomwalk/
   tools/measure_flicker.swift per-frame brightness jitter and loop-seam distance
   tools/blend_seam.swift      soften a mild join without spending credits
   tools/preview_hero.swift    composite a frame with gradients + caption to PNG
+  tools/brightness_curve.swift  chart exposure drift per frame and per segment
+  tools/stabilise_exposure.swift  pull every frame to a common median
   tools/connect_higgsfield.py Higgsfield sign-in that works around the RFC 9207 bug
   web/scroll_frames.js        canvas scroll engine with a pacing timeline
 commands/
@@ -137,6 +139,24 @@ the join becomes continuous by construction while `end_image` still controls arr
 the normal frame-to-frame change, invisible. The three that walked through a doorway into
 a second room tore at 6.3×, 11.4× and 8.4×. If the brief needs more categories than one
 room holds, put the extras in the catalogue below the hero.
+
+---
+
+## Three things that decide whether it feels smooth
+
+**Stabilise the exposure.** The model relights the scene as it goes — measured drift across
+five segments was +15, +15, +1, −11, −37. Invisible at playback speed; scrubbed slowly it
+reads as *"the sun appears and then goes away"*. `stabilise_exposure` pulls it to +1.7, +0.8,
++1.6, −0.7, −5.4, with the clamp keeping genuinely dark places dark.
+
+**Give travel more scroll than the holds.** The instinct is backwards. Hold 1 against travel
+3 puts 30 % of the scroll into the stops and 70 % into moving. Doing it the other way round
+was the first thing a client called sticky.
+
+**Load progressively and in parallel.** Every eighth frame across the whole run first, then
+denser, eight requests in flight — and draw the nearest loaded frame rather than nothing.
+A sequential loader means the first minute of scrolling lands on frames that have not
+arrived and the page reads as broken.
 
 ---
 

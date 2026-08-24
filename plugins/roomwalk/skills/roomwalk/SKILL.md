@@ -247,15 +247,43 @@ swiftc -O tools/blend_seam.swift -o blend_seam
 
 Blending caps out around 2.5× — it cannot rescue a torn seam, only polish a mild one.
 
+### 9a · Stabilise the exposure — do not skip this
+
+The model relights the scene as it goes. Measured on a real build, the mean brightness of
+the five segments drifted **+15, +15, +1, −11, −37** across an eight-second take each. At
+playback speed nobody notices. Scrubbed slowly by a scroll wheel it reads exactly as *"the
+sun appears and then goes away"* — and it was the first thing the client complained about.
+
+```bash
+swiftc -O tools/brightness_curve.swift -o brightness_curve
+./brightness_curve ./frames 120            # see the drift, per segment
+
+swiftc -O tools/stabilise_exposure.swift -o stabilise_exposure
+./stabilise_exposure ./frames              # pull every frame to the common median
+```
+
+The gain is clamped, so places that are genuinely darker — the inside of a cupboard, shadow
+under a counter — stay darker instead of flattening into porridge. After the pass the same
+build read +1.7, +0.8, +1.6, −0.7, −5.4, and the remaining −5.4 is the real darkness inside
+the wardrobe.
+
+Run `brightness_curve` again afterwards and quote both numbers. A drift over about ±6 per
+segment is visible; under ±2 is not.
+
 Also available: `measure_flicker` reports per-frame brightness jitter and how far the last
-frame sits from the first. Jitter invisible at 30 fps reads as flicker when scrubbed slowly.
-If the material has strong texture and raking light, run Higgsfield's `video_deflicker`
-**before** slicing.
+frame sits from the first. If the material has strong texture and raking light, run
+Higgsfield's `video_deflicker` **before** slicing.
 
 ### 10 · Wire the scroll
 
 Copy `web/scroll_frames.js`. It draws to `<canvas>` — never swap `<img src>`, which
 re-decodes and flashes.
+
+It loads **progressively and in parallel**: every eighth frame across the whole run first,
+then every fourth, then every second, then the rest, eight requests in flight. And `draw`
+falls back to the nearest loaded frame rather than returning early. Both matter more than
+they look — a strictly sequential loader means the first minute of scrolling lands on frames
+that have not arrived, the canvas holds, and the page feels broken rather than loading.
 
 **Section height governs smoothness.** Target **9–10 px of scroll per frame**:
 
@@ -271,17 +299,23 @@ make the rhythm here:
 
 ```js
 timeline: [
-  { to: 0.030, scroll: 3 },   // dwell at the first stop
-  { to: 0.170, scroll: 2 },   // travel
-  { to: 0.230, scroll: 3 },   // dwell
+  { to: 0.030, scroll: 1 },   // brief hold at the first stop
+  { to: 0.170, scroll: 3 },   // travel — most of the scroll goes here
+  { to: 0.230, scroll: 1 },   // hold
   // …
 ]
 ```
 
 `to` is how far through the frames to reach; `scroll` is how much scroll to spend getting
-there. Weights are normalised, so only their ratios matter. Dwell 3 against travel 2 gives
-roughly a fourfold speed difference — measured at 2.5–3.7 frames per 1 % of scroll on travel
-against 0.08–0.22 on a dwell. Retuning the rhythm is five numbers, never a regeneration.
+there. Weights are normalised, so only their ratios matter.
+
+**Give the travel more scroll than the holds, not less.** The instinct is backwards: heavy
+dwell weights feel like generosity and read as a page that keeps sticking. Hold 1 against
+travel 3 puts about 30 % of the scroll into the stops — enough to read a caption — and 70 %
+into moving. The first build did the opposite, dwells took 54 % of the scroll, and the
+complaint was immediate: *"it should just scroll through, not sit on one thing"*.
+
+Retuning the rhythm is five numbers, never a regeneration.
 
 Put the stops at exact segment boundaries — `k / segmentCount` — so a caption never lands
 mid-move.

@@ -56,6 +56,8 @@ export default class ScrollFrames {
     this.images = [];
     this.indices = [];
     this.current = -1;
+    this.drawn = -1;
+    this.ready = false;
     this.raf = 0;
     this.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -109,12 +111,32 @@ export default class ScrollFrames {
   }
 
   async preloadRest() {
-    // Последовательно, а не Promise.all: сотня параллельных запросов забивает
-    // соединение и первый экран грузится дольше, чем без предзагрузки вообще.
-    for (let s = 1; s < this.indices.length; s++) {
-      await this.load(s);
-      if (s === this.current) this.draw(s);
+    // Грузим в несколько проходов: сперва каждый восьмой кадр по всей длине,
+    // потом сгущаем. Так весь проход становится проматываемым через пару секунд —
+    // грубо, но без замираний, — а не через минуту и подряд от начала.
+    const total = this.indices.length;
+    for (const step of [8, 4, 2, 1]) {
+      const queue = [];
+      for (let s = 0; s < total; s += step) if (!this.images[s]) queue.push(s);
+      // Пачками, а не по одному: сотня последовательных запросов — это сотня
+      // круговых задержек, и первые секунды прокрутки приходятся ровно на них.
+      const LANES = 8;
+      for (let i = 0; i < queue.length; i += LANES) {
+        await Promise.all(queue.slice(i, i + LANES).map((slot) => this.load(slot)));
+        if (this.current >= 0) this.draw(this.current);
+      }
+      if (step === 1) this.ready = true;
     }
+  }
+
+  /** Ближайший загруженный слот — чтобы промотка не застревала на дырах. */
+  nearestLoaded(slot) {
+    if (this.images[slot]) return slot;
+    for (let d = 1; d < this.indices.length; d++) {
+      if (this.images[slot - d]) return slot - d;
+      if (this.images[slot + d]) return slot + d;
+    }
+    return -1;
   }
 
   resizeCanvas() {
@@ -125,8 +147,9 @@ export default class ScrollFrames {
   }
 
   draw(slot) {
-    const img = this.images[slot];
-    if (!img) return;
+    const use = this.nearestLoaded(slot);
+    if (use < 0) return;
+    const img = this.images[use];
 
     const { width: cw, height: ch } = this.canvas;
     // cover: заполняем холст целиком, лишнее срезаем — как background-size: cover.
@@ -134,7 +157,10 @@ export default class ScrollFrames {
     const w = img.naturalWidth * scale;
     const h = img.naturalHeight * scale;
     this.ctx.drawImage(img, (cw - w) / 2, (ch - h) / 2, w, h);
+    // Помним запрошенный слот, а не подставленный: когда настоящий кадр
+    // догрузится, перерисовка произойдёт сама.
     this.current = slot;
+    this.drawn = use;
     if (this.onFrame) {
       const last = this.indices.length - 1;
       this.onFrame(last > 0 ? slot / last : 0, slot);
@@ -193,7 +219,7 @@ export default class ScrollFrames {
         this.indices.length - 1,
         Math.round(this.curve(this.progress()) * (this.indices.length - 1)),
       );
-      if (slot !== this.current) this.draw(slot);
+      if (slot !== this.current || this.drawn !== this.nearestLoaded(slot)) this.draw(slot);
     });
   }
 
