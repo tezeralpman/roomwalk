@@ -1,15 +1,34 @@
 # roomwalk
 
-**Send it your website. It reads the site, proposes a scroll-driven walk through a generated
-space, and builds it.**
+**Two scroll-driven heroes. Pick by whether the offer is a place or a thing.**
 
-The camera moves through one room and stops at each thing you sell. The generated space is
-the **stage**; your own photographs are the **proof**, and they surface at the stop that
-matches their category. Nobody is shown a rendered thing and told it is yours.
+**`roomwalk`** — send it your website. It reads the site, proposes a walk through one
+generated space with a stop at each thing you sell, and builds it.
 
-Works for any business physical enough to walk past — a joinery, a perfumery, a clinic, a
-restaurant, a detailing bay, a flower studio, a gym, an atelier. The space changes; the
-mechanic does not. Purely digital businesses are the wrong fit and the skill says so.
+**`exploded`** — one product on pure black that comes apart as you scroll. A single unbroken
+shot: assembled at the top, floating in pieces at the bottom. **No joins at all**, because
+there is only ever one segment — which removes the failure mode that costs the most time in a
+walk.
+
+---
+
+## Which one
+
+| | `roomwalk` | `exploded` |
+| --- | --- | --- |
+| The offer is | a range, in a place | one object |
+| Fits | joinery, clinic, restaurant, gym, atelier, detailing, florist | watch, bottle, sneaker, chair, tool, jar, lamp |
+| Segments | 4–6, joined | **one** |
+| Seams to fix | yes, and they are the hard part | none |
+| Ground | a lit interior | pure black, so the hero has no edge |
+| Draft cost | 60–80 credits | ~10 credits |
+
+In `roomwalk` the generated space is the **stage** and your own photographs are the **proof**,
+surfacing at the stop that matches their category — nobody is shown a rendered thing and told
+it is yours. In `exploded` the object must be **your** product photograph; the explosion is
+generated from it, never the product itself.
+
+Purely digital businesses are the wrong fit for both, and the skills say so.
 
 ---
 
@@ -101,10 +120,13 @@ skills/roomwalk/
   tools/stabilise_exposure.swift  pull every frame to a common median
   tools/connect_higgsfield.py Higgsfield sign-in that works around the RFC 9207 bug
   web/scroll_frames.js        canvas scroll engine with a pacing timeline
+skills/exploded/
+  SKILL.md                    one object on black, one shot, no joins
 commands/
   connect.md                  /roomwalk:connect — Higgsfield sign-in
   start.md                    /roomwalk:start — ask for the link, read the site, propose
-  walk.md                     /roomwalk:walk — go straight to building
+  walk.md                     /roomwalk:walk — go straight to building the walk
+  explode.md                  /roomwalk:explode — build the product hero
 ```
 
 ---

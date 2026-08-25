@@ -39,6 +39,12 @@ walk past. The space changes; the mechanic does not.
 If the offer is purely digital — SaaS, an agency, a consultancy — this is the wrong tool.
 A generated office is decoration and reads as filler. Say so rather than building it.
 
+**If a single object carries the whole offer** — a watch, a bottle, a sneaker, a tool — use
+the `exploded` skill instead. It is one unbroken shot on black: the object sits assembled and
+comes apart as you scroll. One segment means no joins, which removes the failure mode that
+costs the most time here. A walk earns its complexity only when the visitor needs to see
+several different things in the place they belong.
+
 ---
 
 ## What you need before starting

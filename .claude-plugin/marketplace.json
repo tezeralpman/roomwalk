@@ -1,6 +1,6 @@
 {
   "name": "roomwalk",
-  "description": "Scroll-driven walkthroughs for any local business — send a link, get a plan, get a hero.",
+  "description": "Scroll-driven heroes: a walk through a space, or one product coming apart on black.",
   "owner": {
     "name": "Aironzak"
   },
@@ -8,7 +8,7 @@
     {
       "name": "roomwalk",
       "source": "./plugins/roomwalk",
-      "description": "Send it a link to any business's website and it builds a scroll-driven walk through a generated space — workshop, boutique, clinic, kitchen, studio, showroom. Reads the site to find the categories, counts, prices and claim, proposes a plan and a cost, then generates through Higgsfield, slices frames with AVFoundation (no ffmpeg), measures its own seams and wires the scroll. Generates the environment, never the outcome."
+      "description": "Two scroll-driven heroes built through the Higgsfield MCP. roomwalk: send a link to any business's site and it reads the categories, proposes a walk through one generated space and builds it, with the business's own photographs surfacing at each stop. exploded: one product on pure black that comes apart as you scroll — a single unbroken shot, so there are no joins at all. Frame tools are AVFoundation, no ffmpeg."
     }
   ]
 }
