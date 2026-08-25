@@ -47,6 +47,11 @@ several different things in the place they belong.
 
 ---
 
+> **Перед генерацией прочтите [`higgsfield.md`](higgsfield.md).** Там лежат
+> замеренные цены, готовые пресеты движения и порядок операций
+> (дефликер → апскейл → вырезание фона → нарезка). Половина того, что здесь
+> описано как ручная работа, в каталоге Higgsfield есть штатно и дешевле.
+
 ## What you need before starting
 
 1. **The Higgsfield MCP connector.** If `generate_video` / `generate_image` are not in this

@@ -39,6 +39,12 @@ JPEG, so a 700-frame sequence lands much lighter than the same count of a lit in
 
 ---
 
+> **Перед генерацией прочтите
+> [`../roomwalk/higgsfield.md`](../roomwalk/higgsfield.md).** Там замеренные цены,
+> готовые пресеты движения (`ANDROID ASSEMBLE` — это ровно разборка наоборот) и
+> порядок операций. В частности: генерировать в 4K не надо — 1080p плюс апскейл
+> стоит 98 кредитов против 220 и даёт вдвое больше кадров.
+
 ## What you need before starting
 
 1. **The Higgsfield MCP connector.** If `generate_video` / `generate_image` are not in this

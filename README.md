@@ -239,4 +239,26 @@ rendered face is a worse outcome than no hero at all.
 
 ---
 
+---
+
+## About Higgsfield itself
+
+[`skills/roomwalk/higgsfield.md`](plugins/roomwalk/skills/roomwalk/higgsfield.md)
+covers generation rather than layout: motion presets, measured prices, order of
+operations. The three that matter most:
+
+**Don't generate at 4K.** Ten seconds at 4K costs 220 credits; at 1080p it costs
+90, and upscaling to 4K at 48 fps costs 8. That's 98 against 220 — and you get
+twice the frames, because the upscaler interpolates the frame rate. For scrubbing,
+frame count *is* smoothness.
+
+**Read the presets before writing a prompt.** `ORBIT 360` walks the camera a full
+circle around a person with the pose frozen — the loop closes by construction
+rather than by pleading with a prompt. `ANDROID ASSEMBLE` is `exploded` in reverse.
+
+**Backgrounds get removed, not flattened** — `sam_3_video`. Flicker is
+`video_deflicker`. Length comes from `video_extension`, not from joining takes.
+
+---
+
 MIT.
