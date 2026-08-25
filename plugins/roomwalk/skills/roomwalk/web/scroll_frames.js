@@ -13,6 +13,18 @@
  * из-за чего на промотке видно мигание. Здесь все кадры декодированы заранее
  * и лежат в памяти, а drawImage только копирует пиксели.
  */
+/**
+ * Пока страница не разложена — а в скрытой вкладке это надолго — innerWidth
+ * равен нулю, и любой запрос вида (max-width: …) отвечает «да». Движок из-за
+ * этого решал, что он на телефоне, брал каждый второй кадр и промотка шла
+ * вдвое быстрее задуманного. Ждать раскладку нельзя: rAF в скрытой вкладке не
+ * вызывается, и ожидание повисает навсегда. Поэтому неизвестную ширину считаем
+ * не телефоном, а неизвестностью, и по умолчанию идём полным набором кадров.
+ */
+function isNarrow(query) {
+  return window.innerWidth > 0 && window.matchMedia(query).matches;
+}
+
 export default class ScrollFrames {
   constructor({
     canvas,
@@ -38,6 +50,20 @@ export default class ScrollFrames {
     timeline = null,
     // Сглаживание внутри отрезка, чтобы переезды не дёргались на стыках.
     ease = true,
+    // Как кадр ложится в холст.
+    //   'cover'   — заполнить целиком, лишнее срезать. Для интерьеров: там
+    //               важно, чтобы кадр упирался в края, иначе виден шов страницы.
+    //   'contain' — вписать целиком, добавив поля. На чёрной подложке поля
+    //               того же цвета, что и фон кадра, поэтому их не видно — зато
+    //               композиция, которую сделал генератор, доходит до зрителя
+    //               неурезанной. Для предмета в пустоте это правильный режим.
+    fit = 'cover',
+    // Множитель к посчитанному масштабу. Нужен на портретном экране: кадр 16:9,
+    // вписанный по contain в вертикальный холст, превращается в узкую полоску,
+    // и предмет выходит мелким. zoom 1.6–1.8 возвращает ему размер, срезая по
+    // бокам пустоту, которой там всё равно ничего нет. Меняется на лету:
+    //   seq.zoom = 1.7; seq.redraw();
+    zoom = 1,
     // Вызывается после каждой перерисовки: (доля отснятого 0..1, номер слота).
     // Через неё вешаются подписи, привязанные к остановкам камеры.
     onFrame = null,
@@ -50,8 +76,14 @@ export default class ScrollFrames {
     this.mobileStride = mobileStride;
     this.mobileQuery = mobileQuery;
     this.ease = ease;
+    this.fit = fit;
+    this.zoom = zoom;
     this.onFrame = onFrame;
     this.segments = timeline ? this.buildTimeline(timeline) : null;
+
+    // Цвет полей берём с самой страницы, чтобы он совпал с фоном точно, а не
+    // «примерно чёрный» — на хорошем экране разница в один пункт уже видна.
+    this.padColor = getComputedStyle(canvas).backgroundColor || '#000';
 
     this.images = [];
     this.indices = [];
@@ -71,7 +103,7 @@ export default class ScrollFrames {
     this.meta = await res.json();
 
     const total = this.meta.frames;
-    const stride = window.matchMedia(this.mobileQuery).matches ? this.mobileStride : 1;
+    const stride = isNarrow(this.mobileQuery) ? this.mobileStride : 1;
     this.indices = [];
     for (let i = 0; i < total; i += stride) this.indices.push(i);
     // Последний кадр должен попасть в набор при любом шаге, иначе анимация
@@ -152,10 +184,17 @@ export default class ScrollFrames {
     const img = this.images[use];
 
     const { width: cw, height: ch } = this.canvas;
-    // cover: заполняем холст целиком, лишнее срезаем — как background-size: cover.
-    const scale = Math.max(cw / img.naturalWidth, ch / img.naturalHeight);
+    const sx = cw / img.naturalWidth;
+    const sy = ch / img.naturalHeight;
+    const base = this.fit === 'contain' ? Math.min(sx, sy) : Math.max(sx, sy);
+    const scale = base * this.zoom;
     const w = img.naturalWidth * scale;
     const h = img.naturalHeight * scale;
+    if (this.fit === 'contain' || this.zoom < 1) {
+      // Поля надо закрашивать: без этого на них остаётся предыдущий кадр.
+      this.ctx.fillStyle = this.padColor;
+      this.ctx.fillRect(0, 0, cw, ch);
+    }
     this.ctx.drawImage(img, (cw - w) / 2, (ch - h) / 2, w, h);
     // Помним запрошенный слот, а не подставленный: когда настоящий кадр
     // догрузится, перерисовка произойдёт сама.
@@ -225,6 +264,11 @@ export default class ScrollFrames {
 
   onResize() {
     this.resizeCanvas();
+    this.redraw();
+  }
+
+  /** Перерисовать текущий кадр — после смены fit или zoom. */
+  redraw() {
     if (this.current >= 0) this.draw(this.current);
   }
 

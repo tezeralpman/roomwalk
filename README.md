@@ -23,7 +23,7 @@ walk.
 | Segments | 4–6, joined | **one** |
 | Seams to fix | yes, and they are the hard part | none |
 | Ground | a lit interior | pure black, so the hero has no edge |
-| Draft cost | 60–80 credits | ~10 credits |
+| Draft cost | 60–80 credits | 25 credits (65 for the 1080p final) |
 
 In `roomwalk` the generated space is the **stage** and your own photographs are the **proof**,
 surfacing at the stop that matches their category — nobody is shown a rendered thing and told
@@ -181,6 +181,16 @@ was the first thing a client called sticky.
 denser, eight requests in flight — and draw the nearest loaded frame rather than nothing.
 A sequential loader means the first minute of scrolling lands on frames that have not
 arrived and the page reads as broken.
+
+**Never read an unknown viewport as mobile.** Before layout, `innerWidth` is 0 and
+`matchMedia('(max-width: 768px)')` answers yes — on desktop that halved the frame set and
+halved the section height. Waiting for layout via `requestAnimationFrame` is worse: in a
+hidden tab it never fires and the wait hangs forever. Treat an unknown width as unknown and
+default to the full set.
+
+**Don't hide copy for a reveal without a safety net.** If the observer doesn't run — tab
+minimised, timers throttled, a script that threw earlier — the reader is left with a blank
+screen. Reveal everything still hidden after 2.5 s, whatever the cause.
 
 ---
 

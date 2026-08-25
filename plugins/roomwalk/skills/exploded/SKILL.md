@@ -52,8 +52,9 @@ JPEG, so a 700-frame sequence lands much lighter than the same count of a lit in
    see the `roomwalk` skill for why.
 2. **Swift**, for the frame tools. `swiftc` ships with Xcode Command Line Tools.
 3. **A photograph of the real product**, if the product is real. See § Honesty.
-4. **Credits.** A single 10-second draft at 480p is around 10 credits; the 1080p final is
-   about 90. Preflight with `get_cost: true`.
+4. **Credits.** Measured on `seedance_2_5`, 10 seconds, both ends anchored: **25 credits at
+   480p, 65 at 1080p**. Always run the draft first — the 480p tells you whether the motion is
+   right, and a wrong motion at 1080p is 65 credits gone. Preflight with `get_cost: true`.
 
 ---
 
@@ -110,9 +111,15 @@ downstream inherits this.
 - `end_image` — asset 2, the exploded arrangement
 
 ```
-model: seedance_2_5     duration: 10–20 s     resolution: 480p draft / 1080p final
-aspect_ratio: 16:9      generate_audio: false
+model: seedance_2_5     mode: omni_reference      duration: 10–20 s
+resolution: 480p draft / 1080p final              aspect_ratio: 16:9
+generate_audio: false
 ```
+
+**`mode: 'omni_reference'` is not optional.** Without it the call is rejected outright:
+*«mode 't2v' does not accept reference media; start_image and end_image are only allowed for
+mode 'omni_reference'»*. The default mode is text-to-video and silently ignores nothing — it
+refuses with a 422.
 
 The prompt describes the *journey between two frames the model already has*, so it can only
 choose how to get there:
@@ -132,7 +139,7 @@ a multi-segment walk. **There are no seams to measure. Skip the seam tooling ent
 `seedance_2_5` reaches 30 seconds, which is far more than this needs. Ten seconds at 24 fps
 is 240 source frames — plenty for a 700-frame sequence after slicing.
 
-### 5 · Slice, then stabilise
+### 5 · Slice, then check the void — don't reflexively stabilise
 
 ```bash
 swiftc -O ../roomwalk/tools/extract_frames.swift -o extract_frames
@@ -142,17 +149,29 @@ swiftc -O ../roomwalk/tools/extract_frames.swift -o extract_frames
 On black, the frames are small — a flat background costs almost nothing — so you can afford
 more of them and a wider frame than a walkthrough allows.
 
-Then run the exposure pass anyway:
-
 ```bash
-swiftc -O ../roomwalk/tools/stabilise_exposure.swift -o stabilise_exposure
-./brightness_curve ./frames        # look first
-./stabilise_exposure ./frames      # then correct
+swiftc -O ../roomwalk/tools/brightness_curve.swift -o brightness_curve
+./brightness_curve ./frames
 ```
 
-A single take drifts less than five stitched ones, but the model still brightens the object
-as it opens up. On black that reads as the object glowing on its own, which is worse than it
-sounds — it looks like a rendering artefact rather than light.
+**Mean frame brightness rises across every exploded take, and that is usually correct.** As
+the object opens up there is simply more lit metal in frame — on the reference build it went
+14.5 → 20.4, and every point of that came from the brass movement coming into view. Running
+`stabilise_exposure` on that would darken the late frames to match the early ones, dimming
+the movement exactly where it is the whole point of the shot.
+
+The number that decides it is the **corner** brightness, not the mean. Sample a small square
+in each of the four corners across the take:
+
+- **Corners flat** (they sat at 0.1–1.6 of 255 for the whole reference take) → the lighting
+  never moved, the mean rose because the content did. **Do nothing.**
+- **Corners drift** → the model relit the void. Now `stabilise_exposure` is the right call,
+  and so is checking the corner value against the page background before shipping.
+
+Sample the *corners*, not a border strip around the whole frame. A strip catches the object
+the moment a part floats up to the edge: on the reference take the top-centre strip read 1.5
+early and 124 later, which looks exactly like a catastrophic black-lift and is nothing of the
+kind. Corners stay empty from the first frame to the last.
 
 ### 6 · Scrub it
 
@@ -160,14 +179,35 @@ Copy `../roomwalk/web/scroll_frames.js`. Same engine, but here the setup is simp
 there are no stops:
 
 ```js
-new ScrollFrames({
+const seq = new ScrollFrames({
   canvas: document.querySelector('#hero'),
   scroller: document.querySelector('.hero-section'),
   dir: './frames',
   manifest: './frames/manifest.json',
+  fit: 'contain',   // see below — this is the whole reason the black ground pays off
+  zoom: 1,
   // no timeline — one continuous move deserves a continuous, even mapping
 });
+seq.start();
+
+// Портрет: кадр 16:9 по contain съёживается в полоску.
+const portrait = window.matchMedia('(max-aspect-ratio: 1/1)');
+const setZoom = () => { seq.zoom = portrait.matches ? 1.75 : 1; seq.redraw(); };
+setZoom();
+portrait.addEventListener('change', setZoom);
 ```
+
+**Use `fit: 'contain'`, not the default `cover`.** A walkthrough needs `cover` — an interior
+that stops short of the edge shows a seam where the footage ends and the page begins. Here
+the letterbox bars are *the same black as the page*, so they are invisible, and you keep the
+composition the generator actually made instead of throwing 10–15 % of it away. On the build
+this skill was written from, `cover` cropped the sides and pushed the object hard into the
+left of the fold; `contain` put it back where it was framed.
+
+**Then zoom on portrait.** `contain` on a phone fits a 16:9 frame into a tall canvas as a
+thin band across the middle — the object comes out tiny with vast emptiness above and below.
+`zoom: 1.75` restores its size by cropping the sides, where there is nothing but void anyway.
+Gate the switch on **aspect ratio**, not width: a tablet held upright has the same problem.
 
 **Leave `timeline` out.** A walk needs holds because it visits places; a deconstruction is a
 single gesture, and pausing it mid-way reads as a stall. Even mapping, start to finish.
