@@ -1,5 +1,7 @@
 # roomwalk
 
+*[Гайд по-русски →](README.ru.md) · [Contributing](CONTRIBUTING.md)*
+
 **Two scroll-driven heroes. Pick by whether the offer is a place or a thing.**
 
 **`roomwalk`** — send it your website. It reads the site, proposes a walk through one
