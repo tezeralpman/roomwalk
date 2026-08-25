@@ -20,7 +20,7 @@ walk.
 | --- | --- | --- |
 | The offer is | a range, in a place | one object |
 | Fits | joinery, clinic, restaurant, gym, atelier, detailing, florist | watch, bottle, sneaker, chair, tool, jar, lamp |
-| Segments | 4–6, joined | **one** |
+| Segments | 4–6, joined | **one**, played forward then back |
 | Seams to fix | yes, and they are the hard part | none |
 | Ground | a lit interior | pure black, so the hero has no edge |
 | Draft cost | 60–80 credits | 25 credits (65 for the 1080p final) |

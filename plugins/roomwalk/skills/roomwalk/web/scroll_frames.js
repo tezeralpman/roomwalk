@@ -64,6 +64,16 @@ export default class ScrollFrames {
     // бокам пустоту, которой там всё равно ничего нет. Меняется на лету:
     //   seq.zoom = 1.7; seq.redraw();
     zoom = 1,
+    // Прогнать набор вперёд, а затем назад. Предмет разбирается и собирается
+    // обратно — сценарий вдвое длиннее, кредитов ноль, швов не бывает в
+    // принципе: это буквально те же кадры в обратном порядке.
+    pingpong = false,
+    // Сдвиг кадра внутри холста, в долях его ширины и высоты. Генератор почти
+    // никогда не ставит предмет туда, где он нужен вёрстке. На чёрной подложке
+    // сдвиг бесплатен: едет пустота, а предмет освобождает колонку под текст.
+    //   offsetX: -0.1  — кадр уезжает влево на десятую часть ширины холста.
+    offsetX = 0,
+    offsetY = 0,
     // Вызывается после каждой перерисовки: (доля отснятого 0..1, номер слота).
     // Через неё вешаются подписи, привязанные к остановкам камеры.
     onFrame = null,
@@ -78,6 +88,9 @@ export default class ScrollFrames {
     this.ease = ease;
     this.fit = fit;
     this.zoom = zoom;
+    this.pingpong = pingpong;
+    this.offsetX = offsetX;
+    this.offsetY = offsetY;
     this.onFrame = onFrame;
     this.segments = timeline ? this.buildTimeline(timeline) : null;
 
@@ -109,6 +122,16 @@ export default class ScrollFrames {
     // Последний кадр должен попасть в набор при любом шаге, иначе анимация
     // не доигрывает до конца и обрывается на середине движения.
     if (this.indices[this.indices.length - 1] !== total - 1) this.indices.push(total - 1);
+
+    if (this.pingpong) {
+      // Обратный ход без повтора крайнего кадра: иначе на развороте предмет
+      // на один слот замирает, и это читается как подвисание.
+      const back = this.indices.slice(0, -1).reverse();
+      this.forwardCount = this.indices.length;
+      this.indices = this.indices.concat(back);
+    } else {
+      this.forwardCount = this.indices.length;
+    }
 
     this.resizeCanvas();
 
@@ -190,12 +213,18 @@ export default class ScrollFrames {
     const scale = base * this.zoom;
     const w = img.naturalWidth * scale;
     const h = img.naturalHeight * scale;
-    if (this.fit === 'contain' || this.zoom < 1) {
+    if (this.fit === 'contain' || this.zoom < 1 || this.offsetX || this.offsetY) {
       // Поля надо закрашивать: без этого на них остаётся предыдущий кадр.
       this.ctx.fillStyle = this.padColor;
       this.ctx.fillRect(0, 0, cw, ch);
     }
-    this.ctx.drawImage(img, (cw - w) / 2, (ch - h) / 2, w, h);
+    this.ctx.drawImage(
+      img,
+      (cw - w) / 2 + cw * this.offsetX,
+      (ch - h) / 2 + ch * this.offsetY,
+      w,
+      h,
+    );
     // Помним запрошенный слот, а не подставленный: когда настоящий кадр
     // догрузится, перерисовка произойдёт сама.
     this.current = slot;

@@ -209,8 +209,25 @@ thin band across the middle — the object comes out tiny with vast emptiness ab
 `zoom: 1.75` restores its size by cropping the sides, where there is nothing but void anyway.
 Gate the switch on **aspect ratio**, not width: a tablet held upright has the same problem.
 
-**Leave `timeline` out.** A walk needs holds because it visits places; a deconstruction is a
-single gesture, and pausing it mid-way reads as a stall. Even mapping, start to finish.
+**Run it forward and back.** `pingpong: true` appends the reversed frame list, so the object
+takes itself apart and then puts itself together again. The scenario doubles in length for
+**zero extra credits**, and the turn cannot show a seam because it is literally the same
+frames in reverse. A one-way explosion ends on a pile of parts, which is an odd note to leave
+a product page on; ending back on the assembled object is the better story anyway.
+
+**One hold, at the peak.** With ping-pong you now *do* want a `timeline` — a single dwell on
+the fully exploded state, and nothing else:
+
+```js
+timeline: [
+  { to: 0.50, scroll: 5 },     // разбирается
+  { to: 0.52, scroll: 2.5 },   // держим на разобранном
+  { to: 1.00, scroll: 4 },     // собирается
+]
+```
+
+Travel 9 against hold 2.5. Weighting it the other way is the first thing a client calls
+sticky — that lesson is from the walk and it transfers exactly.
 
 Section height at **9–10 px of scroll per frame**, as always: 240 frames on an 833 px
 viewport is about 4 screens. Shorter than a walk, and that is correct — one gesture should
@@ -218,9 +235,51 @@ not take fifteen screens to complete.
 
 Page ground must be the same black as the frames, or the edge comes back.
 
+### 6a · Put the words inside the sequence, not under it
+
+This is the difference between a page and a video with captions, and it was the single
+loudest piece of feedback on the reference build: *«не видно, что это вообще сайт, как будто
+просто видео какое-то»*.
+
+**Bind each block of copy to the frames where its part actually separates.** Nine parts, nine
+bands of scroll. The reader sees the crystal lift and reads about the crystal in the same
+moment; a list of the same nine paragraphs *below* the hero asks them to remember what they
+saw and match it up themselves, and they won't.
+
+```html
+<article class="note" data-from="0.150" data-to="0.195" data-at="top">…</article>
+```
+
+Read the bounds off the markup rather than keeping a separate schedule in JS — a schedule
+that lives away from the text drifts out of sync with it the first time either changes.
+
+**Set the type large.** Part name at 44–48 px, body at 19–21 px. Annotation-sized type is
+what makes a scroll hero read as subtitles. If the copy is worth showing it is worth setting.
+
+**Then make room for it, with numbers.** The generated object almost never leaves a usable
+column. Measure the object's extreme edge across *every* frame, not a sample:
+
+- On the reference build the object reached **80.5 % of the frame width** at full explosion
+  (the strap buckle), while a 26 rem right-hand column starts at 65 %.
+- `offsetX: -0.19` moved the object to 2 %–61.5 % and left a 25 px gap at the narrowest
+  desktop, growing with width. On black the shift costs nothing — what moves is void.
+
+**And know when the column stops fitting.** Below about 1216 px there is no room for two
+columns: the copy goes to a band at the bottom over a gradient, and the frame lifts
+(`offsetY: -0.11`) so the object doesn't sit under it. Three modes, chosen by aspect and
+width — wide landscape, narrow landscape, portrait.
+
+**Statements go in the column too.** A large line centred over the frame lands on the object,
+because with `contain` the object occupies nearly the full stage height. Do not reach for a
+scrim to fix that: darkening the frame under text is the other thing clients reject on sight.
+
 ### 7 · The rest of the page
 
-Black throughout. The sections that suit this shape, in order:
+**Break the ground exactly once.** After the hero, one section on light paper. Nothing else
+signals *this is a website, not a film* as cheaply or as clearly, and it gives the spec table
+somewhere to live that isn't more small text on black. Then return to black to close.
+
+The sections that suit this shape, in order:
 
 - **Overlay on the hero** — a small label, one display line, one sentence, one button. Sitting
   over a bottom gradient so it reads at any frame. Nothing else.
